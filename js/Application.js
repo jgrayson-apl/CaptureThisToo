@@ -149,18 +149,38 @@ class Application extends AppBase {
         resultGraphicEnabled: false
       });
 
+      // BASEMAP LAYER LIST //
+      const basemapReferenceLayerList = new BasemapLayerList({
+        container: 'basemap-reference-layers-container',
+        view: view,
+        visibleElements: {
+          referenceLayers: true,
+          baseLayers: false,
+          errors: true,
+          statusIndicators: true
+        }
+      });
+
       // LAYER LIST //
       const layerList = new LayerList({
         container: 'layers-container',
         view: view,
-        visibleElements: {statusIndicators: true}
+        visibleElements: {
+          errors: true,
+          statusIndicators: true
+        }
       });
 
       // BASEMAP LAYER LIST //
-      const basemapLayerList = new BasemapLayerList({
-        container: 'basemap-layers-container',
+      const basemapBaseLayerList = new BasemapLayerList({
+        container: 'basemap-base-layers-container',
         view: view,
-        visibleElements: {statusIndicators: true}
+        visibleElements: {
+          referenceLayers: false,
+          baseLayers: true,
+          errors: true,
+          statusIndicators: true
+        }
       });
 
       // BASEMAP GALLERY //
