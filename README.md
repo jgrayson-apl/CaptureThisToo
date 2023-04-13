@@ -1,11 +1,10 @@
-# Application Template
-Simple application template that uses the ArcGIS API for JavaScript and Calcite Components.
+# Capture This Too!
+Use this application to create screen captures of your web maps and web scenes.
 
+
+### Technologies Used
  - [ArcGIS API for Javascript](https://developers.arcgis.com/javascript/latest/api-reference/)
  - [Calcite Components](https://developers.arcgis.com/calcite-design-system/components/)
-
-*WARNING*: this is a new and evolving effort... things might not work as expected.
-
 
 ### Deploy
 
@@ -26,6 +25,16 @@ Update the parameters in ./config/application.json file in your favorite json ed
 |     **apiKey** | ArcGIS Platform API key                                           |
 |     **webmap** | The item id of the web map (only use webmap OR webscene)          |
 |   **webscene** | The item id of the web scene (only use webmap OR webscene)        |
+
+
+### To dynamically use other Web Maps and Web Scenes
+
+Append your portal item id to the end of the application URL
+
+* Web Map
+  * ../index.html?webmap=123456789123456789123456789
+* Web Scene
+  * ../index.html?webscene=123456789123456789123456789
 
 
 #### For questions about the demo web application:
