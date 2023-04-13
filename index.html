@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0 maximum-scale=1.0"/>
+    <!-- ICON -->
+    <link rel="icon" href="./assets/favicon.ico" sizes="32x32" type="image/vnd.microsoft.icon">
+    <!-- TITLE -->
+    <title class="application-title"></title>
+    <!-- META -->
+    <meta property="og:title" content="Capture This Too!">
+    <meta property="og:description" content="Use this application to create screen captures of your maps and scenes.">
+    <meta property="og:url" content="https://geoxc-apps2.bd.esri.com/Utilities/CaptureThis2/index.html">
+    <meta property="og:image" content="https://geoxc-apps2.bd.esri.com/Utilities/CaptureThis2/assets/CaptureThis2.png">
+    
+    <!-- CALCITE -->
+    <script type="module" src="https://js.arcgis.com/calcite-components/1.0.7/calcite.esm.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/calcite-components/1.0.7/calcite.css"/>
+    
+    <!-- ArcGIS API for JavaScript-->
+    <link href="https://js.arcgis.com/4.26/@arcgis/core/assets/esri/themes/light/main.css" rel="stylesheet"/>
+    <script src="https://js.arcgis.com/4.26/"></script>
+    
+    <!-- APPLICATION -->
+    <link rel="stylesheet" type="text/css" href="./css/application.css">
+    <script type="module" src="./js/Application.js"></script>
+  </head>
+  <body class="calcite-mode-light">
+    <calcite-shell content-behind>
+      
+      <header class="content-row" slot="header">
+        <h2 class="content-row">
+          <calcite-icon class="application-icon" icon="screenshot-mode" scale="l"></calcite-icon>
+          <span class="application-title"></span>
+        </h2>
+        <calcite-action-bar layout="horizontal" expand-disabled="true">
+          <div id="sign-in-container"></div>
+          <calcite-action id="app-share-action" appearance="transparent" scale="m" title="share current options..." text="share current options" icon="link" hidden></calcite-action>
+          <calcite-action id="app-details-action" appearance="transparent" scale="m" title="app details..." text="app details" icon="information"></calcite-action>
+        </calcite-action-bar>
+      </header>
+      
+      <!-- LEFT -->
+      <calcite-shell-panel slot="panel-start" position="start" width-scale="m" detached collapsed="false">
+        <calcite-action-bar id="side-panel-action-bar" slot="action-bar">
+          <calcite-action text="Contents" title="Map contents..." icon="map-contents" class="toggle-action" data-toggle="contents"></calcite-action>
+          <calcite-action text="Capture" title="Capture screenshot of map..." icon="monitor" class="toggle-action" data-toggle="capture" active></calcite-action>
+          <calcite-action id="images-action" text="Images" title="Save screenshots as images..." icon="file-image" class="toggle-action" data-toggle="images"></calcite-action>
+        </calcite-action-bar>
+        
+        <calcite-panel heading="Map Contents" class="toggle-panel" data-toggle="contents" hidden>
+          <calcite-block heading="Basemap" collapsible>
+            <calcite-icon slot="icon" icon="basemap"></calcite-icon>
+            <div id="basemaps-container"></div>
+          </calcite-block>
+          <calcite-block heading="Layers" collapsible>
+            <calcite-icon slot="icon" icon="layers"></calcite-icon>
+            <calcite-block-section text="Operational Layers">
+              <div id="layers-container"></div>
+            </calcite-block-section>
+            <calcite-block-section text="Basemap Layers">
+              <div id="basemap-layers-container"></div>
+            </calcite-block-section>
+          </calcite-block>
+          <calcite-block heading="Places" collapsible>
+            <calcite-icon slot="icon" icon="bookmark"></calcite-icon>
+            <div id="bookmarks-container"></div>
+          </calcite-block>
+        </calcite-panel>
+        
+        <calcite-panel heading="Screenshot Options" class="toggle-panel" data-toggle="capture">
+          
+          <calcite-block heading="Set Map Location" description="set map location" collapsible>
+            <calcite-icon slot="icon" icon="map-pin"></calcite-icon>
+            <calcite-label>
+              <div id="search-container"></div>
+            </calcite-label>
+            <calcite-label hidden>
+              <div id="overview-node"></div>
+            </calcite-label>
+            <calcite-label hidden>
+              Use this map to set the desired output extent...
+            </calcite-label>
+          </calcite-block>
+          
+          <calcite-block heading="Image Size" description="set capture dimensions" collapsible open>
+            <calcite-icon slot="icon" icon="image-mensuration"></calcite-icon>
+            
+            <calcite-label>
+              <calcite-segmented-control id="capture-size-option" width="full">
+                <calcite-segmented-control-item value="DEFAULT" checked>default</calcite-segmented-control-item>
+                <calcite-segmented-control-item value="PLENARY">plenary</calcite-segmented-control-item>
+                <calcite-segmented-control-item value="CUSTOM">custom</calcite-segmented-control-item>
+              </calcite-segmented-control>
+            </calcite-label>
+            
+            <calcite-label>
+              <calcite-input-number id="output-width-input" min="200" value="1920" step="1" alignment="end" prefix-text="Width" suffix-text="px" icon="arrow-double-horizontal" required group-separator read-only></calcite-input-number>
+            </calcite-label>
+            <calcite-label layout="inline-space-between">
+              <div>&nbsp;</div>
+              <calcite-action id="swap-link" text="swap" text-enabled icon="arrow-up-down" scale="s"></calcite-action>
+              <div>&nbsp;</div>
+            </calcite-label>
+            <calcite-label>
+              <calcite-input-number id="output-height-input" min="200" value="1080" step="1" alignment="end" prefix-text="Height" suffix-text="px" icon="arrow-double-vertical" required group-separator read-only></calcite-input-number>
+            </calcite-label>
+          </calcite-block>
+          
+          <calcite-block heading="Capture View" description="take screenshot of current view" collapsible open>
+            <calcite-icon slot="icon" icon="camera"></calcite-icon>
+            <calcite-label>
+              <calcite-button id="screenshot-btn" icon-end="image-plus" appearance="solid" width="full" scale="l" round>take screenshot</calcite-button>
+            </calcite-label>
+            <calcite-label layout="inline-space-between">
+              <div>&nbsp;</div>
+              <div> device pixel ratio: <span id="device-pixel-ratio">1</span></div>
+              <div>&nbsp;</div>
+            </calcite-label>
+          </calcite-block>
+        
+        </calcite-panel>
+        
+        <calcite-panel heading="Save Screenshot As Image" class="toggle-panel" data-toggle="images" hidden>
+          <calcite-notice id="save-screenshot-notice" icon="information-f" open>
+            <div slot="title">Saving Screenshots</div>
+            <div slot="message">
+              Use the 'Save image as...' option on the image context-menu, then paste it into your favorite image processing software...
+            </div>
+          </calcite-notice>
+          <calcite-block heading="Screenshots" collapsible open>
+            <calcite-icon slot="icon" icon="images"></calcite-icon>
+            <calcite-action id="clear-screenshots-action" title="remove all screenshots" slot="control" icon="trash" scale="s"></calcite-action>
+            <div id="snapshots-list"></div>
+          </calcite-block>
+        </calcite-panel>
+      
+      </calcite-shell-panel>
+      
+      <!-- CENTER -->
+      <div id="view-container"></div>
+      
+      <!-- SCREENSHOT READY ALERT -->
+      <calcite-alert id="screenshot-ready-alert" slot="alerts" placement="bottom" kind="success" icon="image" auto-close auto-close-duration="fast">
+        <div slot="title">Screenshot Ready</div>
+        <div slot="message">Screenshot is ready in the 'Save Screenshot As Image' panel...</div>
+        <calcite-link slot="link" id="screenshot-ready-link" title="open panel" icon-end="launch" appearance="clear">view screenshot</calcite-link>
+      </calcite-alert>
+      
+      <!-- SHAREABLE ALERT -->
+      <calcite-alert id="app-share-alert" slot="alerts" kind="success" icon="launch" placement="bottom" auto-close auto-close-duration="medium">
+        <div slot="message">Shareable link has been copied to the clipboard.</div>
+        <calcite-link slot="link" href="#" target="_blank" role="link" title="open in new tab">open in new tab</calcite-link>
+      </calcite-alert>
+      
+      <!-- NOTICES ADN ALERTS -->
+      <calcite-alert id="app-notice" slot="alerts" kind="danger" placement="bottom" width="auto">
+        <div slot="title"></div>
+        <div slot="message"></div>
+      </calcite-alert>
+      
+      <!-- APP DETAILS MODAL -->
+      <calcite-modal id="app-details-modal" slot="modals" kind="brand" aria-labelledby="app-modal-title">
+        <h3 slot="header" id="app-modal-title" class="application-title"></h3>
+        <div slot="content" class="application-description-IGNORE">
+          <div>
+            Use this application to create screen captures of your maps and scenes. To use your own Web Map or Web Scene please append your Item id to the app URL:
+          </div>
+          <ul>
+            <li>
+              <div>Web Map</div>
+              <div>../index.html<span class="text-highlight">?webmap=</span>123456789123456789123456789</div>
+            </li>
+            <li>
+              <div>Web Scene</div>
+              <div>../index.html<span class="text-highlight">?webscene=</span>123456789123456789123456789</div>
+            </li>
+          </ul>
+        </div>
+        <div slot="secondary">
+          <calcite-label layout="inline">
+            <span>hide on startup</span>
+            <calcite-checkbox id="hide-startup-checkbox"></calcite-checkbox>
+          </calcite-label>
+        </div>
+        <calcite-button id="app-details-ok-btn" slot="primary" width="full" hidden>OK</calcite-button>
+      </calcite-modal>
+    
+    </calcite-shell>
+    
+    <!-- LOADER -->
+    <calcite-loader id="app-loader" type="indeterminate" scale="l" text="...loading..."></calcite-loader>
+    
+    <!-- SCREENSHOT CARD TEMPLATE -->
+    <template id="screenshot-card-template">
+      <calcite-card thumbnail-position="block-start">
+        <img slot="thumbnail" src="./assets/GeoXC.png"/>
+        <div slot="title"></div>
+        <div slot="subtitle"></div>
+        <div slot="footer-start"></div>
+        <calcite-action slot="footer-end" title="remove screenshot" icon="trash" scale="s"></calcite-action>
+      </calcite-card>
+    </template>
+  
+  </body>
+</html>
