@@ -19,6 +19,7 @@ import AppLoader from "./loaders/AppLoader.js";
 import SignIn from './apl/SignIn.js';
 import ViewLoading from './apl/ViewLoading.js';
 import SlidesList from './apl/SlidesList.js';
+
 //import SynchronizedViews from './support/SynchronizedViews.js';
 
 class Application extends AppBase {
@@ -218,147 +219,150 @@ class Application extends AppBase {
     ], (promiseUtils, reactiveUtils, MapView) => {
 
       /*const overview = new MapView({
-        container: "overview-node",
-        map: view.map,
-        constraints: {snapToZoom: false},
-        ui: {components: []}
-      });
-      overview.when(() => {
+       container: "overview-node",
+       map: view.map,
+       constraints: {snapToZoom: false},
+       ui: {components: []}
+       });
+       overview.when(() => {
 
-        const viewSync = new SynchronizedViews({views: [view, overview]});*/
+       const viewSync = new SynchronizedViews({views: [view, overview]});*/
 
-        const devicePixelRatio = document.getElementById("device-pixel-ratio");
-        devicePixelRatio.innerHTML = String(window.devicePixelRatio);
+      const devicePixelRatio = document.getElementById("device-pixel-ratio");
+      devicePixelRatio.innerHTML = String(window.devicePixelRatio);
 
-        const plenarySize = {width: 11894, height: 2160}; // {width: 14428, height: 2160};
-        const defaultSize = {width: 1920, height: 1080};
-        let captureSize = {...defaultSize};
+      const plenarySize = {width: 11894, height: 2160}; // {width: 14428, height: 2160};
+      const defaultSize = {width: 1920, height: 1080};
+      let captureSize = {...defaultSize};
 
-        const _updateViewSize = () => {
-          captureSize.width = Number(outputWidthInput.value);
-          captureSize.height = Number(outputHeightInput.value);
-          view.container.style.width = `${ captureSize.width }px`;
-          view.container.style.height = `${ captureSize.height }px`;
-          //overview.container.style.height = `${ (350 / (captureSize.width / captureSize.height)) }px`;
-        };
+      const _updateViewSize = () => {
+        captureSize.width = Number(outputWidthInput.value);
+        captureSize.height = Number(outputHeightInput.value);
+        view.container.style.width = `${ captureSize.width }px`;
+        view.container.style.height = `${ captureSize.height }px`;
+        //overview.container.style.height = `${ (350 / (captureSize.width / captureSize.height)) }px`;
+      };
 
-        const outputWidthInput = document.getElementById("output-width-input");
-        const outputHeightInput = document.getElementById("output-height-input");
-        const _setInputSize = ({width, height}) => {
-          outputWidthInput.value = width;
-          outputHeightInput.value = height;
-        };
-        _setInputSize(captureSize);
+      const outputWidthInput = document.getElementById("output-width-input");
+      const outputHeightInput = document.getElementById("output-height-input");
+      const _setInputSize = ({width, height}) => {
+        outputWidthInput.value = width;
+        outputHeightInput.value = height;
+      };
+      _setInputSize(captureSize);
+      _updateViewSize();
+
+      const captureSizeOption = document.getElementById('capture-size-option');
+      captureSizeOption.value = 'DEFAULT';
+      captureSizeOption.addEventListener('calciteSegmentedControlChange', () => {
+
+        let canEdit = false;
+        let newSize;
+
+        switch (captureSizeOption.value) {
+          case 'CUSTOM':
+            canEdit = true;
+            newSize = {
+              width: Number(outputWidthInput.value),
+              height: Number(outputHeightInput.value)
+            };
+            break;
+          case 'PLENARY':
+            newSize = {...plenarySize};
+            break;
+          default:
+            newSize = {...defaultSize};
+            break;
+        }
+
+        outputWidthInput.toggleAttribute('read-only', !canEdit);
+        outputHeightInput.toggleAttribute('read-only', !canEdit);
+
+        _setInputSize(newSize);
         _updateViewSize();
+      });
 
-        const captureSizeOption = document.getElementById('capture-size-option');
-        captureSizeOption.value = 'DEFAULT';
-        captureSizeOption.addEventListener('calciteSegmentedControlChange', () => {
+      outputWidthInput.addEventListener("calciteInputNumberInput", _updateViewSize);
+      outputHeightInput.addEventListener("calciteInputNumberInput", _updateViewSize);
 
-          let canEdit = false;
-          let newSize;
+      const swapLink = document.getElementById("swap-link");
+      swapLink.addEventListener("click", () => {
+        const swap = outputWidthInput.value;
+        outputWidthInput.value = outputHeightInput.value;
+        outputHeightInput.value = swap;
+        _updateViewSize();
+      });
 
-          switch (captureSizeOption.value) {
-            case 'CUSTOM':
-              canEdit = true;
-              newSize = {
-                width: Number(outputWidthInput.value),
-                height: Number(outputHeightInput.value)
-              };
-              break;
-            case 'PLENARY':
-              newSize = {...plenarySize};
-              break;
-            default:
-              newSize = {...defaultSize};
-              break;
-          }
+      const screenshotReadyAlert = document.getElementById('screenshot-ready-alert');
+      const screenshotReadyLink = document.getElementById('screenshot-ready-link');
+      screenshotReadyLink.addEventListener('click', () => {
+        screenshotReadyAlert.toggleAttribute('open', false);
+        this.togglePanel('images', true);
+      });
 
-          outputWidthInput.toggleAttribute('read-only', !canEdit);
-          outputHeightInput.toggleAttribute('read-only', !canEdit);
+      const snapshotsList = document.getElementById('snapshots-list');
+      const clearScreenshotsAction = document.getElementById('clear-screenshots-action');
+      clearScreenshotsAction.addEventListener('click', () => {
+        snapshotsList.replaceChildren();
+      });
 
-          _setInputSize(newSize);
-          _updateViewSize();
-        });
+      const screenshotBtn = document.getElementById('screenshot-btn');
+      reactiveUtils.watch(() => view.updating, (updating) => {
+        screenshotBtn.toggleAttribute('disabled', updating);
+      }, {initial: true});
 
-        outputWidthInput.addEventListener("calciteInputNumberInput", _updateViewSize);
-        outputHeightInput.addEventListener("calciteInputNumberInput", _updateViewSize);
+      const scaleFormatter = new Intl.NumberFormat('default', {minimumFractionDigits: 0, maximumFractionDigits: 0});
 
-        const swapLink = document.getElementById("swap-link");
-        swapLink.addEventListener("click", () => {
-          const swap = outputWidthInput.value;
-          outputWidthInput.value = outputHeightInput.value;
-          outputHeightInput.value = swap;
-          _updateViewSize();
-        });
+      const screenshotCardTemplate = document.getElementById('screenshot-card-template');
+      const _createCaptureCard = (screenshotSize) => {
+        const templateNode = screenshotCardTemplate.content.cloneNode(true);
 
-        const screenshotReadyAlert = document.getElementById('screenshot-ready-alert');
-        const screenshotReadyLink = document.getElementById('screenshot-ready-link');
-        screenshotReadyLink.addEventListener('click', () => {
-          screenshotReadyAlert.toggleAttribute('open', false);
-          this.togglePanel('images', true);
-        });
+        const snapshotCard = templateNode.querySelector('calcite-card');
+        const titleNode = snapshotCard.querySelector('[slot="title"]');
+        const subtitleNode = snapshotCard.querySelector('[slot="subtitle"]');
+        const thumbnailNode = snapshotCard.querySelector('[slot="thumbnail"]');
+        const footerNode = snapshotCard.querySelector('[slot="footer-start"]');
+        const trashBtn = snapshotCard.querySelector('[slot="footer-end"]');
 
-        const snapshotsList = document.getElementById('snapshots-list');
-        const clearScreenshotsAction = document.getElementById('clear-screenshots-action');
-        clearScreenshotsAction.addEventListener('click', () => {
-          snapshotsList.replaceChildren();
-        });
+        titleNode.innerHTML = (new Date()).toLocaleTimeString();
+        subtitleNode.innerHTML = `Lon: ${ view.center.longitude.toFixed(4) } | Lat: ${ view.center.latitude.toFixed(4) } | Scale: 1:${ scaleFormatter.format(view.scale) }`;
+        footerNode.innerHTML = `width:${ screenshotSize.width.toLocaleString() } px | height:${ screenshotSize.height.toLocaleString() } px`;
+        trashBtn.addEventListener('click', () => { snapshotCard.remove(); });
 
-        const screenshotBtn = document.getElementById('screenshot-btn');
-        reactiveUtils.watch(() => view.updating, (updating) => {
-          screenshotBtn.toggleAttribute('disabled', updating);
-        }, {initial: true});
+        return {snapshotCard, thumbnailNode};
+      };
 
-        const scaleFormatter = new Intl.NumberFormat('default', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+      screenshotBtn.addEventListener("click", () => {
 
-        const screenshotCardTemplate = document.getElementById('screenshot-card-template');
-        const _createCaptureCard = (screenshotSize) => {
-          const templateNode = screenshotCardTemplate.content.cloneNode(true);
-
-          const snapshotCard = templateNode.querySelector('calcite-card');
-          const titleNode = snapshotCard.querySelector('[slot="title"]');
-          const subtitleNode = snapshotCard.querySelector('[slot="subtitle"]');
-          const thumbnailNode = snapshotCard.querySelector('[slot="thumbnail"]');
-          const footerNode = snapshotCard.querySelector('[slot="footer-start"]');
-          const trashBtn = snapshotCard.querySelector('[slot="footer-end"]');
-
-          titleNode.innerHTML = (new Date()).toLocaleTimeString();
-          subtitleNode.innerHTML = `Lon: ${ view.center.longitude.toFixed(4) } | Lat: ${ view.center.latitude.toFixed(4) } | Scale: 1:${ scaleFormatter.format(view.scale) }`;
-          footerNode.innerHTML = `width:${ screenshotSize.width.toLocaleString() } px | height:${ screenshotSize.height.toLocaleString() } px`;
-          trashBtn.addEventListener('click', () => { snapshotCard.remove(); });
-
-          return {snapshotCard, thumbnailNode};
+        const screenshotSize = {
+          width: (captureSize.width * window.devicePixelRatio),
+          height: (captureSize.height * window.devicePixelRatio)
         };
 
-        screenshotBtn.addEventListener("click", () => {
+        const {snapshotCard, thumbnailNode} = _createCaptureCard(screenshotSize);
+        snapshotsList.append(snapshotCard);
 
-          const screenshotSize = {
-            width: (captureSize.width * window.devicePixelRatio),
-            height: (captureSize.height * window.devicePixelRatio)
-          };
+        screenshotBtn.toggleAttribute('loading', true);
+        reactiveUtils.whenOnce(() => !view.updating).then(() => {
+          view.focus();
+          view.takeScreenshot({...screenshotSize}).then(async screenshot => {
 
-          const {snapshotCard, thumbnailNode} = _createCaptureCard(screenshotSize);
-          snapshotsList.append(snapshotCard);
+            thumbnailNode.src = screenshot.dataUrl;
 
-          screenshotBtn.toggleAttribute('loading', true);
-          reactiveUtils.whenOnce(() => !view.updating).then(() => {
-            view.focus();
-            view.takeScreenshot({...screenshotSize}).then(async screenshot => {
+            screenshotBtn.toggleAttribute('loading', false);
+            screenshotReadyAlert.toggleAttribute('open', true);
 
-              thumbnailNode.src = screenshot.dataUrl;
-
-              screenshotBtn.toggleAttribute('loading', false);
-              screenshotReadyAlert.toggleAttribute('open', true);
-
-              this.setShadowElementStyle(snapshotCard, '.card-content', 'display', 'none');
+            requestAnimationFrame(() => {
+              this.setShadowElementStyle(snapshotCard, '.card-content', 'padding', '0');
               this.setShadowElementStyle(snapshotCard, '.header', 'padding-block', '0.5rem');
               this.setShadowElementStyle(snapshotCard, '.footer', 'padding-block', '0.5rem');
             });
-          });
 
+          });
         });
+
       });
+    });
     //});
   }
 
