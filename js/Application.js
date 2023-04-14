@@ -214,23 +214,38 @@ class Application extends AppBase {
   initializeOverview({view}) {
     require([
       'esri/core/promiseUtils',
-      'esri/core/reactiveUtils',
-      'esri/views/MapView'
-    ], (promiseUtils, reactiveUtils, MapView) => {
+      'esri/core/reactiveUtils'
+    ], (promiseUtils, reactiveUtils) => {
 
-      /*const overview = new MapView({
-       container: "overview-node",
-       map: view.map,
-       constraints: {snapToZoom: false},
-       ui: {components: []}
-       });
-       overview.when(() => {
-
-       const viewSync = new SynchronizedViews({views: [view, overview]});*/
-
+      //
+      // DEVICE PIXEL RATIO
+      //
       const devicePixelRatio = document.getElementById("device-pixel-ratio");
       devicePixelRatio.innerHTML = String(window.devicePixelRatio);
 
+      //
+      // BACKGROUND
+      //
+      const backgroundTransparentSwitch = document.getElementById('background-transparent-switch');
+      const backgroundColorInput = document.getElementById('background-color-input');
+
+      const _updateViewBackground = () => {
+        const selectedColor = backgroundTransparentSwitch.checked ? 'transparent' : backgroundColorInput.value;
+        switch (view.type) {
+          case '2d':
+            view.background = {color: selectedColor};
+            break;
+          case '3d':
+            view.environment.background = {type: 'color', color: selectedColor};
+            break;
+        }
+      };
+      backgroundTransparentSwitch.addEventListener('calciteSwitchChange', () => { _updateViewBackground(); });
+      backgroundColorInput.addEventListener('calciteInputInput', () => { _updateViewBackground(); });
+
+      //
+      // IMAGE SIZE
+      //
       const plenarySize = {width: 11894, height: 2160}; // {width: 14428, height: 2160};
       const defaultSize = {width: 1920, height: 1080};
       let captureSize = {...defaultSize};
@@ -285,6 +300,9 @@ class Application extends AppBase {
       outputWidthInput.addEventListener("calciteInputNumberInput", _updateViewSize);
       outputHeightInput.addEventListener("calciteInputNumberInput", _updateViewSize);
 
+      //
+      // SWAP
+      //
       const swapLink = document.getElementById("swap-link");
       swapLink.addEventListener("click", () => {
         const swap = outputWidthInput.value;
@@ -293,6 +311,9 @@ class Application extends AppBase {
         _updateViewSize();
       });
 
+      //
+      // READY ALRERT
+      //
       const screenshotReadyAlert = document.getElementById('screenshot-ready-alert');
       const screenshotReadyLink = document.getElementById('screenshot-ready-link');
       screenshotReadyLink.addEventListener('click', () => {
@@ -300,19 +321,27 @@ class Application extends AppBase {
         this.togglePanel('images', true);
       });
 
+      //
+      // SNAPSHOTS LIST
+      //
       const snapshotsList = document.getElementById('snapshots-list');
       const clearScreenshotsAction = document.getElementById('clear-screenshots-action');
       clearScreenshotsAction.addEventListener('click', () => {
         snapshotsList.replaceChildren();
       });
 
+      //
+      // SCREENSHOT BUTTON
+      //
       const screenshotBtn = document.getElementById('screenshot-btn');
       reactiveUtils.watch(() => view.updating, (updating) => {
         screenshotBtn.toggleAttribute('disabled', updating);
       }, {initial: true});
 
+      //
+      // SCREENSHOT CARD
+      //
       const scaleFormatter = new Intl.NumberFormat('default', {minimumFractionDigits: 0, maximumFractionDigits: 0});
-
       const screenshotCardTemplate = document.getElementById('screenshot-card-template');
       const _createCaptureCard = (screenshotSize) => {
         const templateNode = screenshotCardTemplate.content.cloneNode(true);
@@ -332,6 +361,9 @@ class Application extends AppBase {
         return {snapshotCard, thumbnailNode};
       };
 
+      //
+      // SCREENSHOT BUTTON CLICK
+      //
       screenshotBtn.addEventListener("click", () => {
 
         const screenshotSize = {
@@ -363,7 +395,6 @@ class Application extends AppBase {
 
       });
     });
-    //});
   }
 
 }

@@ -86,19 +86,33 @@
             </calcite-label>
           </calcite-block>
           
-          <calcite-block heading="Image Size" description="set capture dimensions" collapsible open>
+          <calcite-block heading="Background" description="set image background color" collapsible>
+            <calcite-icon slot="icon" icon="color-correction"></calcite-icon>
+            
+            <calcite-label layout="inline">
+              <div>transparent</div>
+              <calcite-switch id="background-transparent-switch"></calcite-switch>
+            </calcite-label>
+            
+            <calcite-label>
+              <calcite-input id="background-color-input" prefix-text="color" type="color" value="#ffffff"></calcite-input>
+            </calcite-label>
+          
+          </calcite-block>
+          
+          <calcite-block heading="Size" description="set capture dimensions" collapsible open>
             <calcite-icon slot="icon" icon="image-mensuration"></calcite-icon>
             
             <calcite-label>
               <calcite-segmented-control id="capture-size-option" width="full">
+                <calcite-segmented-control-item value="CUSTOM">custom</calcite-segmented-control-item>
                 <calcite-segmented-control-item value="DEFAULT" checked>default</calcite-segmented-control-item>
                 <calcite-segmented-control-item value="PLENARY">plenary</calcite-segmented-control-item>
-                <calcite-segmented-control-item value="CUSTOM">custom</calcite-segmented-control-item>
               </calcite-segmented-control>
             </calcite-label>
             
             <calcite-label>
-              <calcite-input-number id="output-width-input" min="200" value="1920" step="1" alignment="end" prefix-text="Width" suffix-text="px" icon="arrow-double-horizontal" required group-separator read-only></calcite-input-number>
+              <calcite-input-number id="output-width-input" min="200" value="1920" step="1" alignment="end" prefix-text="width" suffix-text="px" icon="arrow-double-horizontal" required group-separator read-only></calcite-input-number>
             </calcite-label>
             <calcite-label layout="inline-space-between">
               <div>&nbsp;</div>
@@ -106,7 +120,7 @@
               <div>&nbsp;</div>
             </calcite-label>
             <calcite-label>
-              <calcite-input-number id="output-height-input" min="200" value="1080" step="1" alignment="end" prefix-text="Height" suffix-text="px" icon="arrow-double-vertical" required group-separator read-only></calcite-input-number>
+              <calcite-input-number id="output-height-input" min="200" value="1080" step="1" alignment="end" prefix-text="height" suffix-text="px" icon="arrow-double-vertical" required group-separator read-only></calcite-input-number>
             </calcite-label>
           </calcite-block>
           

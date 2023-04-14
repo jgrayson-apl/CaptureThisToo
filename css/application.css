@@ -123,8 +123,8 @@ calcite-modal [slot="secondary"] calcite-label {
 }
 
 #overview-node {
-  width  : 350px;
-  height : calc(350px / (1920 / 1080));
+  width: 350px;
+  height: calc(350px / (1920 / 1080));
 }
 
 #screenshot-btn[appearance="solid"] {
@@ -139,8 +139,7 @@ calcite-modal [slot="secondary"] calcite-label {
   margin: 8px;
 }
 
-
 .text-highlight {
-  /*color: var(--calcite-ui-text-inverse);*/
   background-color: yellow;
 }
+
