@@ -229,14 +229,29 @@ class Application extends AppBase {
       const backgroundTransparentSwitch = document.getElementById('background-transparent-switch');
       const backgroundColorInput = document.getElementById('background-color-input');
 
+      // DEFAULTS //
+      const {starsEnabled, atmosphereEnabled} = view.environment || {starsEnabled: true, atmosphereEnabled: false};
+      const _sceneBackground = view.environment?.background || {type: 'color'};
+
       const _updateViewBackground = () => {
+        // DISABLE COLOR INPUT IF SETTING TRANSPARENT BACKGROUND //
+        backgroundColorInput.toggleAttribute('disabled', backgroundTransparentSwitch.checked);
+        // VIEW CONTAINER //
+        view.container.classList.toggle('has-transparent-background', backgroundTransparentSwitch.checked);
+        // SELECTED COLOR //
         const selectedColor = backgroundTransparentSwitch.checked ? 'transparent' : backgroundColorInput.value;
         switch (view.type) {
           case '2d':
+            // MAP VIEW //
             view.background = {color: selectedColor};
             break;
           case '3d':
-            view.environment.background = {type: 'color', color: selectedColor};
+            // SCENE VIEW //
+            view.environment = {
+              background: {..._sceneBackground, color: selectedColor},
+              starsEnabled: backgroundTransparentSwitch.checked ? false : starsEnabled,
+              atmosphereEnabled: backgroundTransparentSwitch.checked ? false : atmosphereEnabled
+            };
             break;
         }
       };

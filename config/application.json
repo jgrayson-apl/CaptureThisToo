@@ -8,6 +8,9 @@
   "group": "",
   "webmap": "61178e40187c48a8bcd6cfbf27442685",
   "webscene": "",
+  "viewProps": {
+    "alphaCompositingEnabled": true
+  },
   "container": "view-container",
   "shareable": []
 }
