@@ -88,9 +88,14 @@ class Application extends AppBase {
 
           // VIEW AND POPUP //
           view.set({
-            supersampleScreenshotEnabled: false,
+            supersampleScreenshotEnabled: true,
             constraints: {snapToZoom: false},
             ui: {components: []}
+          });
+
+          // FATAL ERROR RECOVERY //
+          view.watch("fatalError", (error) => {
+            error && view.tryFatalErrorRecovery();
           });
 
           // HOME //
@@ -261,8 +266,9 @@ class Application extends AppBase {
       //
       // IMAGE SIZE
       //
-      const plenarySize = {width: 11894, height: 2160}; // {width: 14428, height: 2160};
       const defaultSize = {width: 1920, height: 1080};
+      const plenarySize = {width: 11894, height: 2160};
+      const plenary2Size = {width: 16000, height: 6000};
       let captureSize = {...defaultSize};
 
       const _updateViewSize = () => {
@@ -299,6 +305,9 @@ class Application extends AppBase {
             break;
           case 'PLENARY':
             newSize = {...plenarySize};
+            break;
+          case 'PLENARY_2':
+            newSize = {...plenary2Size};
             break;
           default:
             newSize = {...defaultSize};
