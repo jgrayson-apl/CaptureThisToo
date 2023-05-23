@@ -30,6 +30,11 @@ class SlidesList extends HTMLElement {
 
   static version = '0.0.1';
 
+  static ACTION = {
+    APPLY: 1,
+    GOTO: 2
+  };
+
   /**
    * @type {HTMLElement}
    */
@@ -56,13 +61,18 @@ class SlidesList extends HTMLElement {
   _slides;
 
   /**
+   * @type {ACTION}
+   */
+  #action;
+
+  /**
    *
    * @param {SceneView | null} [view]
    * @param {HTMLElement | string | null} container
    * @param {string | null} [webSceneId]
    * @param {boolean | null} [displayThumbnails]
    */
-  constructor({view, container = null, webSceneId = null, displayThumbnails = true}) {
+  constructor({view, container = null, webSceneId = null, displayThumbnails = true, action = SlidesList.ACTION.APPLY}) {
     super();
 
     this._container = (container instanceof HTMLElement) ? container : document.getElementById(container);
@@ -70,6 +80,7 @@ class SlidesList extends HTMLElement {
     this._view = view;
     this._webSceneId = webSceneId || this.getAttribute('webSceneId');
     this._displayThumbnails = displayThumbnails || this.getAttribute('displayThumbnails');
+    this.#action = action;
 
     const shadowRoot = this.attachShadow({mode: 'open'});
     shadowRoot.innerHTML = `
@@ -164,7 +175,14 @@ class SlidesList extends HTMLElement {
       slideListItem.append(slideThumb);
 
       slideListItem.addEventListener('calciteListItemSelect', () => {
-        this._view.goTo({target: slide.viewpoint});
+        switch (this.#action) {
+          case SlidesList.ACTION.APPLY:
+            slide.applyTo(this._view);
+            break;
+          case SlidesList.ACTION.GOTO:
+            this._view.goTo({target: slide.viewpoint});
+            break;
+        }
       });
 
       return slideListItem;

@@ -89,6 +89,7 @@ class Application extends AppBase {
           // VIEW AND POPUP //
           view.set({
             supersampleScreenshotEnabled: true,
+            qualityProfile: "high",
             constraints: {snapToZoom: false},
             ui: {components: []}
           });
@@ -271,12 +272,25 @@ class Application extends AppBase {
       const plenary2Size = {width: 16000, height: 6000};
       let captureSize = {...defaultSize};
 
+      const maxPixels = (view.type === '3d') ? 24000000 : 96000000;
+
       const _updateViewSize = () => {
         captureSize.width = Number(outputWidthInput.value);
         captureSize.height = Number(outputHeightInput.value);
-        view.container.style.width = `${ captureSize.width }px`;
-        view.container.style.height = `${ captureSize.height }px`;
-        //overview.container.style.height = `${ (350 / (captureSize.width / captureSize.height)) }px`;
+
+        const adjustedSize = {...captureSize};
+        const pixelCount = (captureSize.width * captureSize.height);
+
+        if (pixelCount > maxPixels) {
+          const adjustFactor = (maxPixels / pixelCount);
+          adjustedSize.width *= adjustFactor;
+          adjustedSize.height *= adjustFactor;
+        }
+
+        view.container.style.width = `${ adjustedSize.width }px`;
+        view.container.style.height = `${ adjustedSize.height }px`;
+
+        console.info(view.container.style.width, view.container.style.height, captureSize.width, captureSize.height);
       };
 
       const outputWidthInput = document.getElementById("output-width-input");
