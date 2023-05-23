@@ -19,6 +19,7 @@ import AppLoader from "./loaders/AppLoader.js";
 import SignIn from './apl/SignIn.js';
 import ViewLoading from './apl/ViewLoading.js';
 import SlidesList from './apl/SlidesList.js';
+import SynchronizedViews from './support/SynchronizedViews.js';
 
 //import SynchronizedViews from './support/SynchronizedViews.js';
 
@@ -128,6 +129,7 @@ class Application extends AppBase {
 
         this.initializeMapContent({view});
         this.initializeOverview({view});
+        this.initializePreview({view});
 
         resolve();
       }).catch(reject);
@@ -268,13 +270,14 @@ class Application extends AppBase {
       backgroundColorInput.addEventListener('calciteInputInput', () => { _updateViewBackground(); });
 
       //
-      // IMAGE SIZE
+      // IMAGE SIZES //
       //
       const defaultSize = {width: 1920, height: 1080};
       const plenarySize = {width: 11894, height: 2160};
       const plenary2Size = {width: 16000, height: 6000};
       let captureSize = {...defaultSize};
 
+      // MAX PIXELS //
       const maxPixels = (view.type === '3d') ? 24000000 : 96000000;
 
       const _updateViewSize = () => {
@@ -291,8 +294,7 @@ class Application extends AppBase {
 
         view.container.style.width = `${ containerSize.width }px`;
         view.container.style.height = `${ containerSize.height }px`;
-
-        console.info(view.container.style.width, view.container.style.height, captureSize.width, captureSize.height);
+        //console.info(view.container.style.width, view.container.style.height, captureSize.width, captureSize.height);
       };
 
       const outputWidthInput = document.getElementById("output-width-input");
@@ -434,6 +436,39 @@ class Application extends AppBase {
         });
 
       });
+    });
+  }
+
+  /**
+   *
+   * @param view
+   */
+  initializePreview({view}) {
+    require([
+      'esri/core/promiseUtils',
+      'esri/core/reactiveUtils',
+      'esri/views/SceneView'
+    ], (promiseUtils, reactiveUtils, SceneView) => {
+
+      const previewView = new SceneView({
+        container: 'preview-container',
+        ui: {components: []},
+        map: view.map,
+        viewpoint: view.viewpoint
+      });
+      previewView.when(() => {
+
+        reactiveUtils.watch(() => [view.width, view.height], ([width, height]) => {
+          previewView.container.style.height = `${ (previewView.width / (width / height)) }px`;
+        });
+
+        const syncedViews = new SynchronizedViews({views: [view, previewView]});
+
+        const previewBlock = document.getElementById('preview-block');
+        previewBlock.toggleAttribute('open');
+
+      });
+
     });
   }
 
