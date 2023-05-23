@@ -237,7 +237,10 @@ class Application extends AppBase {
 
       // DEFAULTS //
       const {starsEnabled, atmosphereEnabled} = view.environment || {starsEnabled: true, atmosphereEnabled: false};
-      const _sceneBackground = view.environment?.background || {type: 'color'};
+      const _sceneBackground = view.environment?.background || {type: 'color', color: '#ffffff'};
+
+      // SET INITIAL COLOR //
+      backgroundColorInput.value = _sceneBackground.color || '#ffffff';
 
       const _updateViewBackground = () => {
         // DISABLE COLOR INPUT IF SETTING TRANSPARENT BACKGROUND //
@@ -254,7 +257,7 @@ class Application extends AppBase {
           case '3d':
             // SCENE VIEW //
             view.environment = {
-              background: {..._sceneBackground, color: selectedColor},
+              background: {type: 'color', color: selectedColor},
               starsEnabled: backgroundTransparentSwitch.checked ? false : starsEnabled,
               atmosphereEnabled: backgroundTransparentSwitch.checked ? false : atmosphereEnabled
             };
@@ -277,18 +280,17 @@ class Application extends AppBase {
       const _updateViewSize = () => {
         captureSize.width = Number(outputWidthInput.value);
         captureSize.height = Number(outputHeightInput.value);
+        const containerSize = {...captureSize};
 
-        const adjustedSize = {...captureSize};
-        const pixelCount = (captureSize.width * captureSize.height);
-
+        const pixelCount = (containerSize.width * containerSize.height);
         if (pixelCount > maxPixels) {
           const adjustFactor = (maxPixels / pixelCount);
-          adjustedSize.width *= adjustFactor;
-          adjustedSize.height *= adjustFactor;
+          containerSize.width *= adjustFactor;
+          containerSize.height *= adjustFactor;
         }
 
-        view.container.style.width = `${ adjustedSize.width }px`;
-        view.container.style.height = `${ adjustedSize.height }px`;
+        view.container.style.width = `${ containerSize.width }px`;
+        view.container.style.height = `${ containerSize.height }px`;
 
         console.info(view.container.style.width, view.container.style.height, captureSize.width, captureSize.height);
       };
